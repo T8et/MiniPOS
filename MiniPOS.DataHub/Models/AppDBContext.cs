@@ -33,9 +33,9 @@ public partial class AppDBContext : DbContext
     {
         modelBuilder.Entity<BtHist>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("BT_HIST");
+            entity.HasKey(e => e.AuditId).HasName("PK__BT_HIST__A17F23985C6F5606");
+
+            entity.ToTable("BT_HIST");
 
             entity.Property(e => e.AuditCode).HasMaxLength(100);
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
