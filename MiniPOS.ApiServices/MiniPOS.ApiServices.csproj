@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MiniPOS.DataHub\MiniPOS.DataHub.csproj" />
+    <ProjectReference Include="..\MiniPOS.Services\MiniPOS.Services.csproj" />
   </ItemGroup>
 
 </Project>

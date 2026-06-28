@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
 using MiniPOS.DataHub.Models;
+using MiniPOS.Services.Common;
 
 namespace MiniPOS.ApiServices.Controllers
 {
@@ -11,16 +12,18 @@ namespace MiniPOS.ApiServices.Controllers
     public class CatProductController : ControllerBase
     {
         AppDBContext db;
+        CatProductServices services;
 
         public CatProductController()
         {
             db = new AppDBContext();
+            services = new CatProductServices();
         }
 
         [HttpGet("GetAll")]
         public IActionResult GetCatProducts()
         {
-            var response = db.BtProductCats.AsNoTracking().ToList();
+            var response = services.GetAll();
             return Ok(response);
         }
 
@@ -28,73 +31,45 @@ namespace MiniPOS.ApiServices.Controllers
         public IActionResult GetById(string code)
         {
             string status = "Data Not Exist";
-            var respone = db.BtProductCats.AsNoTracking().Where(x => x.CatProductCode == code).FirstOrDefault();
+            var respone = services.GetById(code);
             if (respone is null) return BadRequest(status);
             else return Ok(respone); 
         }
 
         [HttpPost("Create")]
-        public IActionResult CreateCatProduct(BtProductCat data)
+        public async Task<IActionResult> CreateCatProduct(BtProductCat data)
         {
             string msg;
-            try
-            {
-                db.BtProductCats.Add(data);
-                db.SaveChanges();
-                msg = "Created Successfully";
-            }
-            catch
-            {
-                msg = "Error";
-            }
-
+            msg = await services.Create(data);
             return Ok(msg);
         }
 
         [HttpPut("Update")]
-        public IActionResult UpdateCatProduct(string code, string code_desc)
+        public async Task<IActionResult> UpdateCatProduct(string code, string code_desc)
         {
-            string status = "Update Fail";
-            var response = db.BtProductCats.AsNoTracking().Where(x=>x.CatProductCode == code).FirstOrDefault();
-
-            if (response is null) return BadRequest();
-
-            if (code != null) response.CatProductCode = code;
-            if (code_desc != null) response.CatProductDesc = code_desc;
-
             try
             {
-                db.Entry(response).State = EntityState.Modified;
-                db.SaveChanges();
-                return Ok(response);
+                string msg = await services.Update(code, code_desc);
+                return Ok(msg);
             }
             catch
             {
-                return BadRequest(status);
+                return BadRequest();
             }
         }
 
         [HttpDelete("Delete")]
-        public IActionResult DeleteCatProduct(string code)
+        public async Task<IActionResult> DeleteCatProduct(string code)
         {
-            string status = "Delete Fail";
-            var response = db.BtProductCats.AsNoTracking().Where(x => x.CatProductCode == code).FirstOrDefault();
-
-            if (response is null) return BadRequest();
-
             try
             {
-                db.Entry(response).State = EntityState.Deleted;
-                db.SaveChangesAsync();
-                return Ok("Delete Success");
+                string msg = await services.Delete(code);
+                return Ok(msg);
             }
             catch
             {
-                return BadRequest(status);
+                return BadRequest();
             }
-
-
-
         }
     }
 }

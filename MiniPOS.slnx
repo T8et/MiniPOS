@@ -2,4 +2,5 @@
   <Project Path="MiniPOS.ApiServices/MiniPOS.ApiServices.csproj" />
   <Project Path="MiniPOS.Database/MiniPOS.Main.csproj" />
   <Project Path="MiniPOS.DataHub/MiniPOS.DataHub.csproj" />
+  <Project Path="MiniPOS.Services/MiniPOS.Services.csproj" Id="79d219e3-160e-4a02-b6c0-d08f69ad99b6" />
 </Solution>
