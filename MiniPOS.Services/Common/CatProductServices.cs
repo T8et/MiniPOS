@@ -1,11 +1,5 @@
-﻿using Azure;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using MiniPOS.DataHub.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MiniPOS.Services.Common
 {
@@ -27,7 +21,7 @@ namespace MiniPOS.Services.Common
 
         public List<BtProductCat> GetById(string code)
         {
-            var response = db.BtProductCats.AsNoTracking().Where(x=>x.CatProductCode == code).ToList();
+            var response = db.BtProductCats.AsNoTracking().Where(x => x.CatProductCode == code).ToList();
             return response;
         }
 
@@ -39,15 +33,8 @@ namespace MiniPOS.Services.Common
                 await db.SaveChangesAsync();
 
                 bool createAudit = await auditLog.CreateAuditLog("BT_PRODUCT_CAT", "CatProductCode", "admin", "admin");
-
-                if (createAudit)
-                {
-                    return "Created Successfully";
-                }
-                else
-                {
-                    return "Error in Audit";
-                }      
+                if (createAudit) return "Created Successfully";
+                else return "Error in Audit";
             }
             catch
             {
@@ -66,11 +53,7 @@ namespace MiniPOS.Services.Common
             await db.SaveChangesAsync();
 
             bool updateaudit = await auditLog.CreateAuditLog("BT_PRODUCT_CAT", "CatProductCode", "admin", "admin");
-
-            if (updateaudit)
-            {
-                return "Updated Successfully";
-            }
+            if (updateaudit) return "Updated Successfully";
             else return "Fail Update";
         }
 

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MiniPOS.DataHub.Models;
+using MiniPOS.Services.Common;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MiniPOS.ApiServices.Controllers
@@ -11,80 +12,72 @@ namespace MiniPOS.ApiServices.Controllers
     public class ProductController : ControllerBase
     {
         AppDBContext db;
+        ProductServices services;
 
         public ProductController()
         {
             db = new AppDBContext();
+            services = new ProductServices();
         }
 
         [HttpGet("GetAll")]
-        public IActionResult GetProducts()
+        public async Task<IActionResult> GetProducts()
         {
-            var response = db.BtProducts.AsNoTracking().ToList();
+            var response = await services.GetAll();
             return Ok(response);
         }
 
         [HttpGet("GetById")]
-        public IActionResult GetProductById(string code)
+        public async Task<IActionResult> GetProductById(string code)
         {
-            var response = db.BtProducts.AsNoTracking().Where(x => x.ProductCode == code).FirstOrDefault();
+            var response = await services.GetById(code);
             if (response is null) return BadRequest();
             return Ok(response);
         }
 
         [HttpPost("Create")]
-        public IActionResult CreateProduct(BtProduct product)
+        public async Task<IActionResult> CreateProduct(BtProduct product)
         {
-            string msg;            
+            string msg = "";            
             try
             {
-                db.BtProducts.Add(product);
-                db.SaveChanges();
-
-                string auditcode = AuditCodeGeneration();
-
-                BtHist history = new BtHist();
-                history.AuditCode = auditcode;
-                history.EntityName = "BT_PRODUCT";
-                history.FieldName = "ProductCode";
-                history.CreatedBy = "admin";
-                history.CreatedOn = DateTime.Now;
-                history.ModifiedBy = "admin";
-                history.ModifiedOn = DateTime.Now;
-
-                db.BtHists.Add(history);
-                db.SaveChanges();
-
-                msg = "Created Successfully";
+                msg = await services.Create(product);
             }
             catch
             {
-                msg = "Error";
+                return BadRequest(msg);
             }
-
             return Ok(msg);
         }
 
-        private string AuditCodeGeneration()
+        [HttpPut("Update")]
+        public async Task<IActionResult> Update(string code, string desc, double price, string catcode)
         {
-            string code = "";
-            var response = db.BtHists
-                             .AsNoTracking()
-                             .OrderByDescending(x => x.AuditId)
-                             .FirstOrDefault();
-
-            if (response is null || string.IsNullOrEmpty(response.AuditCode))
+            string msg = "";
+            try
             {
-                code = "AU0000001";
+                msg = await services.Update(code, desc, price, catcode);
+                return Ok(msg);
             }
-            else
+            catch
             {
-                var numberPart = int.Parse(response.AuditCode.Substring(2));
-                numberPart++;
-                code = $"AU{numberPart:D7}";
+                return BadRequest(msg);
             }
+        }
 
-            return code;
+        [HttpDelete("Delete")]
+        public async Task<IActionResult> Delete(string code)
+        {
+            string msg = "";
+            try
+            {
+                msg = await services.Delete(code);
+                return Ok(msg);
+            }
+            catch
+            {
+                return BadRequest(msg);
+            }
         }
 
     }
