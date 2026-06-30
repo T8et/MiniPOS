@@ -51,7 +51,7 @@ namespace MiniPOS.ApiServices.Controllers
         }
 
         [HttpPut("Update")]
-        public async Task<IActionResult> Update(string code, string desc, double price, string catcode)
+        public async Task<IActionResult> Update(string code, string? desc, string? price, string? catcode)
         {
             string msg = "";
             try
